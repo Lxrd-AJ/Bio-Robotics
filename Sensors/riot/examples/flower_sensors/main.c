@@ -12,6 +12,7 @@
 #endif
 
 static int hello_world(int argc, char **argv){
+    /* supress compiler errors */
     (void) argc;
     (void) argv;
     printf("Hello world\n");
