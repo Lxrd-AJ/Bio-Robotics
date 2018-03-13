@@ -47,7 +47,7 @@ LGPL code.
 * In TLD
   * Add new drivers to the driver folder & follow the structure
   * add the header file for the driver to the include folder in the drivers folder
-  * Add a new entry for your driver in the top level `Makefile.include` file
+  * Add a new entry for your driver in the top level `Makefile.include` file in the drivers folder
 * Board name = nucleo-l152
   * Sample command `make term BOARD=nucleo-l152`
 

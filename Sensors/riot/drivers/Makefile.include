@@ -172,3 +172,6 @@ endif
 ifneq (,$(filter bmx055,$(USEMODULE)))
   USEMODULE_INCLUDES += $(RIOTBASE)/drivers/bmx055/include
 endif
+ifneq (,$(filter sht2x,$(USEMODULE)))
+  USEMODULE_INCLUDES += $(RIOTBASE)/drivers/sht2x/include
+endif

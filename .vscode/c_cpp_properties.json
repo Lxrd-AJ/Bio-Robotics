@@ -51,7 +51,7 @@
                     "/usr/include/x86_64-linux-gnu",
                     "/usr/include",
                     "~/.gcc-arm-embedded/gcc-arm-none-eabi-7-2017-q4-major/",
-                    "~/.gcc-arm-embedded/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi",
+                    "~/.gcc-arm-embedded/gcc-arm-none-eabi-7-2017-q4-major/arm-none-eabi/include",
                     "${workspaceRoot}"
                 ],
                 "limitSymbolsToIncludedHeaders": true,
