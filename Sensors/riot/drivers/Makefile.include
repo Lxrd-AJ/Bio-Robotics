@@ -175,3 +175,6 @@ endif
 ifneq (,$(filter sht2x,$(USEMODULE)))
   USEMODULE_INCLUDES += $(RIOTBASE)/drivers/sht2x/include
 endif
+ifneq (,$(filter glight,$(USEMODULE)))
+  USEMODULE_INCLUDES += $(RIOTBASE)/drivers/glight/include
+endif

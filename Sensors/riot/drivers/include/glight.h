@@ -13,6 +13,11 @@ extern "C" {
 #define GLIGHT_I2C_ADDRESS           0x40 /**< Default address */
 #endif
 
+enum {
+    GLIGHT_OK = 0,
+    GLIGHT_NO12C = -1
+};
+
 typedef struct {
     i2c_t i2c_bus; 
     uint8_t addr; /** The device's address on the bus*/
