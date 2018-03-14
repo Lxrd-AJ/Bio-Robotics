@@ -13,7 +13,7 @@ extern "C" {
 #endif
 #ifndef GLIGHT_PARAM_ADDR
 #define GLIGHT_PARAM_ADDR       (GLIGHT_I2C_ADDRESS)
-
+#endif
 #ifndef GLIGHT_PARAMS
 #define GLIGHT_PARAMS       { .i2c = GLIGHT_PARAM_I2C, \
                                .addr = GLIGHT_PARAM_ADDR }

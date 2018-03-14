@@ -1,6 +1,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include <stdio.h> //TODO: Remove
+#include <inttypes.h> //TODO: Remove
 
 #include "board.h"
 #include "assert.h"
@@ -19,11 +21,11 @@
 #define ADDR                (dev->params.addr)
 
 int glight_init(glight_t *dev, const glight_params_t *params){
-    uint8_t result;
+    // uint8_t result;
 
     assert(dev && params);
     DEBUG("[ghlight] init: copying dev descriptor\n");
-    memccpy(dev, params, sizeof(glight_params_t));
+    memcpy(dev, params, sizeof(glight_params_t));
 
     /* I2C Bus */
     DEBUG("[sht2x] init: acquiring I2C\n");
@@ -49,12 +51,12 @@ int16_t glight_read_light(glight_t *dev){
     i2c_acquire(BUS);
 
     result = i2c_read_byte(BUS, ADDR, buffer );
-    print(result);
+    printf("%" PRId8 ,result);
     i2c_release(BUS);
 
     DEBUG("[glight] ** Data from sensor \n");
     DEBUG(buffer);
 
     light_amt = buffer[0] << 8;
-    return (int16_t) light_amt
+    return (int16_t) light_amt;
 }

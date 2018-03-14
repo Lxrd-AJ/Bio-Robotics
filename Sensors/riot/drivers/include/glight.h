@@ -19,17 +19,17 @@ enum {
 };
 
 typedef struct {
-    i2c_t i2c_bus; 
+    i2c_t i2c; 
     uint8_t addr; /** The device's address on the bus*/
-} glight_params_t
+} glight_params_t;
 
 typedef struct {
-    glight_params_t params 
+    glight_params_t params;
 } glight_t;
 
-int glight_init_int(glight_t *dev, const glight_params_t *params);
+int glight_init(glight_t *dev, const glight_params_t *params);
 
-int16_t glight_read_light(const glight_t *dev);
+int16_t glight_read_light(glight_t *dev);
 
 #ifdef __cplusplus
 }
