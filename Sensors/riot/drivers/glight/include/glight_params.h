@@ -8,15 +8,12 @@
 extern "C" {
 #endif
 
-#ifndef GLIGHT_PARAM_I2C
-#define GLIGHT_PARAM_I2C        (I2C_DEV(0))
+#ifndef GLIGHT_PARAM_PIN
+#define GLIGHT_PARAM_PIN         (GPIO_PIN(PORT_A,0))
 #endif
-#ifndef GLIGHT_PARAM_ADDR
-#define GLIGHT_PARAM_ADDR       (GLIGHT_I2C_ADDRESS)
-#endif
+
 #ifndef GLIGHT_PARAMS
-#define GLIGHT_PARAMS       { .i2c = GLIGHT_PARAM_I2C, \
-                               .addr = GLIGHT_PARAM_ADDR }
+#define GLIGHT_PARAMS       { pin = GLIGHT_PARAM_PIN }
 #endif
 
 static const glight_params_t glight_params[] = {
