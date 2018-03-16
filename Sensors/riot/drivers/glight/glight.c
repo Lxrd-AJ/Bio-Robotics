@@ -55,7 +55,7 @@ int16_t glight_read_light(glight_t *dev){
     i2c_release(BUS);
 
     DEBUG("[glight] ** Data from sensor \n");
-    DEBUG(buffer);
+    // DEBUG(buffer);
 
     light_amt = buffer[0] << 8;
     return (int16_t) light_amt;
