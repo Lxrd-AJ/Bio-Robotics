@@ -9,18 +9,14 @@
 extern "C" {
 #endif
 
-#ifndef GLIGHT_I2C_ADDRESS
-#define GLIGHT_I2C_ADDRESS           0x40 /**< Default address */
-#endif
 
 enum {
     GLIGHT_OK = 0,
-    GLIGHT_NO12C = -1
+    GLIGHT_NO_GPIO = -1
 };
 
 typedef struct {
-    i2c_t i2c; 
-    uint8_t addr; /** The device's address on the bus*/
+    gpio_t pin;
 } glight_params_t;
 
 typedef struct {
@@ -29,7 +25,7 @@ typedef struct {
 
 int glight_init(glight_t *dev, const glight_params_t *params);
 
-int16_t glight_read_light(glight_t *dev);
+int glight_read_light(glight_t *dev);
 
 #ifdef __cplusplus
 }

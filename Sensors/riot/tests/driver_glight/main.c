@@ -8,7 +8,7 @@ static glight_t dev;
 int main(void){
     puts("Glight driver test ...");
 
-    printf("Initialising light sensor at I2C_DEV(%i) ...\n", glight_params->i2c);
+    printf("Initialising light sensor at GPIO Pin ...\n", glight_params->pin);
     if( glight_init(&dev, glight_params) == GLIGHT_OK ){
         puts("[OK]");
     }else{
@@ -16,7 +16,7 @@ int main(void){
         return -1;
     }
 
-    int16_t light_amt; 
+    int light_amt; 
     
     while(1){
         light_amt = glight_read_light(&dev);
