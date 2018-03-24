@@ -1,3 +1,12 @@
-<p>
-  dashboard works!
-</p>
+<h1>{{flowers.length}} Flowers currently in Database</h1>
+
+<div class="card-columns">
+  <div class="card" *ngFor="let flower of flowers">
+    <div class="card-body">
+      <h5 class="card-title">{{flower.name}}</h5>
+      <div class="card-footer">
+        <small class="text-muted">Last updated x mins ago</small>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { FlowerService } from './../flower.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -6,10 +7,13 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit {
+    flowers: Object[];
 
-  constructor() { }
+  constructor(private flowerService:FlowerService ) { }
 
   ngOnInit() {
+    this.flowerService.getFlowers()
+                  .subscribe(flowers => {this.flowers = flowers; console.log(flowers)});
   }
 
 }
