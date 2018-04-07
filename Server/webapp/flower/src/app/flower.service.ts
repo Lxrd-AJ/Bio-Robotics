@@ -4,6 +4,7 @@ import { Observable } from 'rxjs/Observable';
 import { catchError, map, tap } from 'rxjs/operators';
 import { of } from 'rxjs/observable/of';
 import { environment } from './../environments/environment';
+import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 
 const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json' })
@@ -11,16 +12,19 @@ const httpOptions = {
 
 @Injectable()
 export class FlowerService {
-  constructor(private http: HttpClient) { }
+  baseURL = ""
+  constructor(private http: HttpClient) { 
+    if(environment.serverURL){
+      this.baseURL = environment.serverURL
+    }
+  }
+
+    getOverview(): Observable<Object>{
+      return this.http.get<Object>(`${this.baseURL}/overview`)
+    }
 
     getFlowers(): Observable<Object[]>{
-      var url  
-      if(environment.serverURL){
-          url = `${environment.serverURL}/flower`;
-        }else{
-          url = "/flower"
-        }
-        return this.http.get<Object[]>(url)
+      return this.http.get<Object[]>(`${this.baseURL}/flower`)
               .pipe(
                   tap(flowers => console.log("Fetched Flowers from server")),
                   catchError(this.handleError('getFlowers',[]))

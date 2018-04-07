@@ -6,6 +6,7 @@ const App = express();
 const index_html_path = path.join(__dirname, 'webapp/flower/dist','index.html');
 // import { Flower } from './flower';
 const Flower = require('./flower');
+const FlowerHandler = require("./flower_handler");
 const MeasurementEnum = { TEMP:'TEMP', HUMIDITY: 'HUMIDITY' };
 const btoa = function(str){ return Buffer.from(str).toString('base64'); } //BASE64 helper function
 Object.freeze(MeasurementEnum);
@@ -20,8 +21,8 @@ Database.on('error', console.error.bind(console, "***Connection error:"));
 Database.on('open', () => {
     console.info("Connection established to database");
     var flower = generateFakeData();
-    flower.save()
-    console.info(flower);
+    // flower.save()
+    // console.info(flower);
 });
 
 App.use(express.static(path.join(__dirname,'webapp/flower/dist/')))
@@ -44,6 +45,11 @@ App.get('/flower', (req,res) => {
         }
     })
 })
+App.get('/overview', (req,res) => {
+    FlowerHandler.overview()
+                .then((results) => res.send(results), (err) => res.status(300).send(err))
+})
+
 
 function generateFakeData(){
     console.info("Generating fake flower data ...");
