@@ -31,6 +31,10 @@ export class FlowerService {
               )
     }
 
+    getFlower(id:string): Observable<Object>{
+      return this.http.get<Object>(`${this.baseURL}/flower/${id}`)
+    }
+
     /**
  * Handle Http operation that failed.
  * Let the app continue.

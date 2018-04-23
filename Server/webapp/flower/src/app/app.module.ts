@@ -8,13 +8,17 @@ import { AppRoutingModule } from './/app-routing.module';
 import { AboutComponent } from './about/about.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { FlowerService } from './flower.service';
+import { FlowersComponent } from './flowers/flowers.component';
+import { FlowerComponent } from './flower/flower.component';
 
 
 @NgModule({
   declarations: [
     AppComponent,
     AboutComponent,
-    DashboardComponent
+    DashboardComponent,
+    FlowersComponent,
+    FlowerComponent
   ],
   imports: [
     BrowserModule,

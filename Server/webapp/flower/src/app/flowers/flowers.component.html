@@ -1,0 +1,14 @@
+<div>
+  <div class="card-columns">
+    <div class="card" *ngFor="let flower of flowers">
+      <img class="card-img-top" src="..." alt="Card image cap">
+      <div class="card-body">
+        <a class="card-title" routerLink="/flower/{{flower._id}}">{{flower.name}}</a>
+        <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+      </div>
+      <div class="card-footer">
+        <small class="text-muted">Last updated 3 mins ago</small>
+      </div>
+    </div>
+  </div>
+</div>

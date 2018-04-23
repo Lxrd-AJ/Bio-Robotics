@@ -35,8 +35,20 @@ App.all("*", function (req, res, next) { //Enable Cross-Origin Requests
 });
 App.get('/', (req,res) => res.sendFile(index_html_path));
 App.get('/hello', (req,res) => res.json({"hello":"world"}));
-App.get('/flower', (req,res) => {
-    Flower.find((err,flowers) => {
+
+/**
+ * Sends all flowers
+ * - [ ] TODO: Add code to send a specific flower based on `req`
+ */
+App.get('/flower/:id?', (req,res) => {
+    const flower_id = req.params["id"];
+    var query;
+    if (flower_id !== undefined){
+        query = Flower.find({ "_id": flower_id });
+    }else{
+        query = Flower.find({});
+    }
+    query.exec((err,flowers) => {
         if(err){ 
             res.status(300);
             res.send(err); 
