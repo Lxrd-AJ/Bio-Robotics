@@ -23,7 +23,9 @@
         "styles.css"
       ],
       "scripts": [
-        "../node_modules/bootstrap/dist/js/bootstrap.min.js"
+        "../node_modules/bootstrap/dist/js/bootstrap.min.js",
+        "../node_modules/d3/index.js",
+        "../node_modules/@swimlane/ngx-charts/release/index.js"
       ],
       "environmentSource": "environments/environment.ts",
       "environments": {

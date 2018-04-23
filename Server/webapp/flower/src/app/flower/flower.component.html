@@ -5,6 +5,10 @@
 
   <div *ngIf="flower">
     <h1>Flower {{flower.name}} here</h1>
+    <ngx-charts-line-chart
+      [view]="view"
+      [results]="plot_data">
+    </ngx-charts-line-chart>
   </div>
   
 </div>
