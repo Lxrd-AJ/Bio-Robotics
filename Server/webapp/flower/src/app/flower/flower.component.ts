@@ -13,7 +13,18 @@ export class FlowerComponent implements OnInit {
 
   flower:Object;
   plot_data: any [];
-  view: any[] = [700, 400];
+  view: any[] = [800, 400];
+  showXAxis = true;
+  showYAxis = true;
+  gradient = false;
+  showLegend = true;
+  showXAxisLabel = true;
+  xAxisLabel = 'Timestamp';
+  showYAxisLabel = true;
+  yAxisLabel = 'Value';
+  colorScheme = {
+    domain: ['#5AA454', '#A10A28', '#C7B42C', '#AAAAAA']
+  };
 
   constructor(private flowerService: FlowerService, private route: ActivatedRoute, private location: Location) { }
 
@@ -27,19 +38,24 @@ export class FlowerComponent implements OnInit {
   }
 
   setupPlotData( flower ){
+    var humidity = flower["measurement"].filter((measurement) => measurement["type"] == "HUMIDITY");
+    var series_humidity = humidity.map((measurement) => {
+      return {"name":measurement["timestamp"],"value":measurement["value"]}
+    })
+
+    var temp = flower["measurement"].filter((measurement) => measurement["type"] == "TEMP")
+    var series_temp = temp.map((measurement) => {
+      return {"name":measurement["timestamp"],"value":measurement["value"]}
+    })
+    console.info(series_temp)
     this.plot_data = [{
-      "name": "Humidity",
-      "series": [
-        {
-          "name": "2010",
-          "value": 7870000
-        },
-        {
-          "name": "2011",
-          "value": 8270000
-        }
-      ]
-    }]
+      "name": "Temperature",
+      "series": series_temp
+      },{
+        "name": "Humidity",
+        "series": series_humidity
+      }
+    ]
   }
 
 }

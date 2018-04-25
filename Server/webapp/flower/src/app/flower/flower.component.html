@@ -7,6 +7,16 @@
     <h1>Flower {{flower.name}} here</h1>
     <ngx-charts-line-chart
       [view]="view"
+      [scheme]="colorScheme"
+      [gradient]="gradient"
+      [xAxis]="showXAxis"
+      [yAxis]="showYAxis"
+      [legend]="showLegend"
+      [showXAxisLabel]="showXAxisLabel"
+      [showYAxisLabel]="showYAxisLabel"
+      [xAxisLabel]="xAxisLabel"
+      [yAxisLabel]="yAxisLabel"
+      [autoScale]="autoScale"
       [results]="plot_data">
     </ngx-charts-line-chart>
   </div>

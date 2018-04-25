@@ -4,6 +4,11 @@
 * How to communicate with Server
 * Data server recieves?
 
+# NodeJS lora helpers
+* https://github.com/dumpram/nodejs-lora-server
+* https://www.npmjs.com/package/lora-packet
+* https://github.com/4refr0nt/lora-gw
+
 # Terminal UI Interface
 ## Resources 
 * https://github.com/chjj/blessed

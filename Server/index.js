@@ -21,8 +21,8 @@ Database.on('error', console.error.bind(console, "***Connection error:"));
 Database.on('open', () => {
     console.info("Connection established to database");
     var flower = generateFakeData();
-    // flower.save()
-    // console.info(flower);
+    flower.save()
+    console.info(flower);
 });
 
 App.use(express.static(path.join(__dirname,'webapp/flower/dist/')))
@@ -38,7 +38,7 @@ App.get('/hello', (req,res) => res.json({"hello":"world"}));
 
 /**
  * Sends all flowers
- * - [ ] TODO: Add code to send a specific flower based on `req`
+ * - [x] TODO: Add code to send a specific flower based on `req`
  */
 App.get('/flower/:id?', (req,res) => {
     const flower_id = req.params["id"];
@@ -70,11 +70,25 @@ function generateFakeData(){
 
     var flower = new Flower({ 
         name: 'SunFlower_' + btoa(Math.random().toString()).substr(0,5).toUpperCase(),
-        measurement: [{
-            type: rand_type,
-            timestamp: new Date,
-            value: Math.random() * 80
-        }]
+        measurement: [
+            {
+                type: MeasurementEnum.TEMP,
+                timestamp: new Date,
+                value: Math.random() * 80
+            },{
+                type: MeasurementEnum.TEMP,
+                timestamp: new Date(Math.random() * 10),
+                value: Math.random() * 85
+            },{
+                type: MeasurementEnum.HUMIDITY,
+                timestamp: new Date,
+                value: Math.random() * 50
+            },{
+                type: MeasurementEnum.HUMIDITY,
+                timestamp: new Date,
+                value: Math.random() * 50
+            }
+        ]
     });
     return flower;
 }
