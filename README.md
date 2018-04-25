@@ -6,6 +6,7 @@
 
 # NodeJS lora helpers
 Send Radio commands via serial e.g from node send to serial `radio rx 0`
+* https://github.com/node-serialport/node-serialport
 * https://github.com/dumpram/nodejs-lora-server
 * https://www.npmjs.com/package/lora-packet
 * https://github.com/4refr0nt/lora-gw

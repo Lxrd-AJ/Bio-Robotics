@@ -1,16 +1,22 @@
+
+const SerialPort = require('serialport');
 const express = require('express');
 const path = require('path');
 const Mongoose = require('mongoose');
 const port = 8000;
 const App = express();
 const index_html_path = path.join(__dirname, 'webapp/flower/dist','index.html');
-// import { Flower } from './flower';
 const Flower = require('./flower');
 const FlowerHandler = require("./flower_handler");
 const MeasurementEnum = { TEMP:'TEMP', HUMIDITY: 'HUMIDITY' };
 const btoa = function(str){ return Buffer.from(str).toString('base64'); } //BASE64 helper function
 Object.freeze(MeasurementEnum);
-
+const portName = '/dev/SUN-FLOWER';
+// const MockBinding = SerialPort.Binding;
+// MockBinding.createPort( portName, { echo: true, record: true });
+const Port = new SerialPort( portName , {baudRate: 57600 }, (err) => {
+    if(err){ console.error(`Failed to connect to serial port ${portName}`); }
+});
 
 /**
  * Setup database connection
@@ -21,8 +27,8 @@ Database.on('error', console.error.bind(console, "***Connection error:"));
 Database.on('open', () => {
     console.info("Connection established to database");
     var flower = generateFakeData();
-    flower.save()
-    console.info(flower);
+    // flower.save()
+    // console.info(flower);
 });
 
 App.use(express.static(path.join(__dirname,'webapp/flower/dist/')))
@@ -96,3 +102,28 @@ function generateFakeData(){
 
 App.listen(port, () => console.log(`SunFlower Server listening on ${port}`));
 
+
+/**
+ * Poll the Lora Module for new data occassionally and utilise `dataHandler` function for parsing
+ * the data and storing it into the database
+ */
+const pollObject = setInterval(() => {
+    console.info("Polling for new data ...");
+    Port.write("mac pause", (err,bytesWritten) => {
+        if(err){ console.error(err); }
+        console.info("Executing pause command on mac ....");
+
+        Port.write("radio rx 0", (err,bytesWritten) => {
+            if(err){ console.err(err); }
+            console.info("Requesting for data ....");
+        });
+    });
+}, 60000); //Every 60s (minute)
+
+
+dataHandler = (data) => {
+    console.info(data);
+}
+
+Port.on("data", (data) => dataHandler(data));
+Port.on("readable", () => dataHandler(Port.read()))

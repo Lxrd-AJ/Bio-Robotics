@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.16.3",
-    "mongoose": "^5.0.11"
+    "mongoose": "^5.0.11",
+    "serialport": "^6.2.0"
   }
 }
