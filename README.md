@@ -25,9 +25,10 @@ gpio_read (gpio_t pin) => 0 - 1024 roughly
 
 
 - Data
+- Buffer type: `1` is data and `2` is timesync
 Flower
     - id
-    - measurement
+    - measurement []
         - type = temp
         - timestamp
         - value
