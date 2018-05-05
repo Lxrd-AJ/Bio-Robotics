@@ -1,5 +1,6 @@
 
 const SerialPort = require('serialport');
+const Readline = require('parser-readline');
 const express = require('express');
 const path = require('path');
 const Mongoose = require('mongoose');
@@ -11,12 +12,49 @@ const FlowerHandler = require("./flower_handler");
 const MeasurementEnum = { TEMP:'TEMP', HUMIDITY: 'HUMIDITY' };
 const btoa = function(str){ return Buffer.from(str).toString('base64'); } //BASE64 helper function
 Object.freeze(MeasurementEnum);
-const portName = '/dev/SUN-FLOWER';
+const portName = '/dev/tty.usbserial-FTVQRWKX';
+const RadioState = { INITIAL: '1', REQUEST: '2', RECIEVING: '3' };
+var _CONN_STATE_ = RadioState.INITIAL; //1 - mac pause & got num, 2-radio rx and got ok, 3 is good
 // const MockBinding = SerialPort.Binding;
 // MockBinding.createPort( portName, { echo: true, record: true });
 const Port = new SerialPort( portName , {baudRate: 57600 }, (err) => {
-    if(err){ console.error(`Failed to connect to serial port ${portName}`); }
+    if(err){ 
+        console.error(`Failed to connect to serial port ${portName}`); 
+    }else{
+        console.info("Port open ...");
+        initialPortTasks();
+    }
 });
+const Parser = Port.pipe(new Readline({ delimiter: '\r\n' }))
+Port.on('error', function(err) {
+    console.log('Error: ', err.message);
+})
+// Port.on('open', function() {
+//     console.info("Port open ...");
+//     // initialPortTasks();
+// });
+Parser.on("data", (data) => dataHandler(data));
+// Port.on("readable", () => {
+//     const data = Port.read()
+    
+//     dataHandler(data)
+// })
+
+const macPause = Buffer.from("mac pause\r\n");
+const radioRX = Buffer.from("radio rx 0\r\n");
+initialPortTasks = () => {
+    Port.write( macPause, 'ascii', (err,bytesWritten) => {
+        if(err){ console.error(err.message); }
+        console.info(`Executing pause command on mac ....`);
+        _CONN_STATE_ = RadioState.INITIAL;
+
+        // Port.write(radioRX, (err,bytesWritten) => {
+        //     if(err){ console.err(err); }                
+        //     console.info("Requesting for data ....");
+        //     console.info(Port.read())
+        // });
+    });
+}
 
 /**
  * Setup database connection
@@ -26,7 +64,7 @@ const Database = Mongoose.connection;
 Database.on('error', console.error.bind(console, "***Connection error:"));
 Database.on('open', () => {
     console.info("Connection established to database");
-    var flower = generateFakeData();
+    // var flower = generateFakeData();
     // flower.save()
     // console.info(flower);
 });
@@ -47,6 +85,7 @@ App.get('/hello', (req,res) => res.json({"hello":"world"}));
  * - [x] TODO: Add code to send a specific flower based on `req`
  */
 App.get('/flower/:id?', (req,res) => {
+    // Flower.remove({});
     const flower_id = req.params["id"];
     var query;
     if (flower_id !== undefined){
@@ -107,74 +146,85 @@ App.listen(port, () => console.log(`SunFlower Server listening on ${port}`));
  * Poll the Lora Module for new data occassionally and utilise `dataHandler` function for parsing
  * the data and storing it into the database
  */
-const pollObject = setInterval(() => {
-    console.info("Polling for new data ...");
-    Port.write("mac pause", (err,bytesWritten) => {
-        if(err){ console.error(err); }
-        console.info("Executing pause command on mac ....");
-
-        Port.write("radio rx 0", (err,bytesWritten) => {
-            if(err){ console.err(err); }
-            console.info("Requesting for data ....");
-        });
-    });
-}, 60000); //Every 60s (minute)
+// const pollObject = setInterval(() => {
+    
+// }, 60000); //Every 60s (minute)
 
 
 dataHandler = (data) => {
-    const packet = new Buffer(data,'hex');
+    console.info(data);    
+    data = data.replace("radio_rx  ","");
+    var packet = new Buffer(data,'hex');
     console.info(`Recieved buffer : ${packet}`);
-    const id_buf = packet.slice(0,8);
-    const type_buff = packet.slice(8,9);
-    if( type_buff.readUInt8(0) == 1 ){ // 1 indicates measurement data being sent
-        console.info("Measurement data recieved")
-        const flower = {};
-        flower['name'] = id_buf.toString("hex");
-        flower['measurement'] = [];
-        const length_buffer = packet.slice(9,10);
-        var num_bytes_read = 0; //length_buffer.readUInt8(0);
-        
-        var offset = 10;
-        while(num_bytes_read < length_buffer.readUInt8(0)){ //start reading measurement values
-            const datatype_buffer = packet.readUInt8(offset); //read the unit type
-            num_bytes_read += 1; offset += 1;
-            measurement = {}
 
-            if( datatype_buffer == 1 ){ //Relative temperature DegC / 100
-                measurement['type'] = 'TEMP'
-                //read in timestamp value which is 4 bytes
-                const timestamp_buffer = packet.slice(offset, offset + 4);
-                num_bytes_read += 4; offset += 4;
-                measurement['timestamp'] = new Date(timestamp_buffer.readInt32BE(0) * 1000);
-                // Temperature data is 2 bytes and is read as int16 (signed int)
-                const value_buffer = packet.slice(offset, offset + 2);
-                measurement['value'] = value_buffer.readInt16BE(0) / 100;
-                num_bytes_read += 2; offset += 2;
-            }else if( datatype_buffer == 2 ){ // Relative humidity - data / 100
-                measurement['type'] = 'HUMIDITY';
-                //read in timestamp value which is 4 bytes
-                const timestamp_buffer = packet.slice(offset, offset + 4);
-                num_bytes_read += 4; offset += 4;
-                measurement['timestamp'] = new Date(timestamp_buffer.readInt32BE(0) * 1000);
-                // Humidity data is 2 bytes and is read as UInt16
-                const value_buffer = packet.slice(offset, offset + 2);
-                measurement['value'] = value_buffer.readUInt16BE(0) / 100;
-            }else if( datatype_buffer == 3 ){ // Abs light - no units 
-                measurement['type'] = 'LIGHT'
-                //read in timestamp value which is 4 bytes
-                const timestamp_buffer = packet.slice(offset, offset + 4);
-                num_bytes_read += 4; offset += 4;
-                measurement['timestamp'] = new Date(timestamp_buffer.readInt32BE(0) * 1000);
-                //Light data is 1 byte and is read as UInt8
-                const value_buffer = packet.slice(offset, offset + 1)
-                measurement['value'] = value_buffer.readUInt8(0);
+    if(_CONN_STATE_ == RadioState.INITIAL){
+        _CONN_STATE_ = RadioState.REQUEST
+    }else if( _CONN_STATE_ == RadioState.REQUEST ){
+        _CONN_STATE_ = RadioState.RECIEVING
+        console.info("Now waiting for data ...\n\n\n")
+        return; //radio rx 0 was sent
+    }else if( _CONN_STATE_ == RadioState.RECIEVING ){
+        console.info("Recieving state ....")
+        const id_buf = packet.slice(0,8);
+        const type_buff = packet.slice(8,9);
+        if( type_buff.readUInt8(0) == 1 ){ // 1 indicates measurement data being sent
+            console.info("Measurement data recieved")
+            const flower = {};
+            flower['name'] = id_buf.toString("hex");
+            flower['measurement'] = [];
+            const length_buffer = packet.slice(9,10);
+            var num_bytes_read = 0; //length_buffer.readUInt8(0);
+            
+            var offset = 10;
+            while(num_bytes_read < length_buffer.readUInt8(0)){ //start reading measurement values
+                const datatype_buffer = packet.readUInt8(offset); //read the unit type
+                num_bytes_read += 1; offset += 1;
+                measurement = {}
+
+                if( datatype_buffer == 1 ){ //Relative temperature DegC / 100
+                    measurement['type'] = 'TEMP'
+                    //read in timestamp value which is 4 bytes
+                    const timestamp_buffer = packet.slice(offset, offset + 4);
+                    num_bytes_read += 4; offset += 4;
+                    measurement['timestamp'] = new Date(timestamp_buffer.readInt32LE(0) * 1000);
+                    // Temperature data is 2 bytes and is read as int16 (signed int)
+                    const value_buffer = packet.slice(offset, offset + 2);                
+                    measurement['value'] = value_buffer.readInt16LE(0) / 100;
+                    num_bytes_read += 2; offset += 2;
+                }else if( datatype_buffer == 2 ){ // Relative humidity - data / 100
+                    measurement['type'] = 'HUMIDITY';
+                    //read in timestamp value which is 4 bytes
+                    const timestamp_buffer = packet.slice(offset, offset + 4);
+                    num_bytes_read += 4; offset += 4;
+                    measurement['timestamp'] = new Date(timestamp_buffer.readInt32LE(0) * 1000);
+                    // Humidity data is 2 bytes and is read as UInt16
+                    const value_buffer = packet.slice(offset, offset + 2);
+                    measurement['value'] = value_buffer.readUInt16LE(0) / 100;
+                }else if( datatype_buffer == 3 ){ // Abs light - no units 
+                    measurement['type'] = 'LIGHT'
+                    //read in timestamp value which is 4 bytes
+                    const timestamp_buffer = packet.slice(offset, offset + 4);
+                    num_bytes_read += 4; offset += 4;
+                    measurement['timestamp'] = new Date(timestamp_buffer.readInt32LE(0) * 1000);
+                    //Light data is 1 byte and is read as UInt8
+                    const value_buffer = packet.slice(offset, offset + 1)
+                    measurement['value'] = value_buffer.readUInt8(0);
+                }
+
+                flower['measurement'].push( measurement )
             }
-
-            flower['measurement'].push( measurement )
+            console.log(flower);
+            saveFlower(flower);
         }
-        console.log(flower);
-        saveFlower(flower);
     }
+
+
+    //Request for more data again
+    Port.write(radioRX, (err,bytesWritten) => {
+        if(err){ console.err(err); }
+        console.info("Requesting for data .... sending radio rx 0");
+        _CONN_STATE_ = RadioState.REQUEST;
+    });
 
     
 }
@@ -184,16 +234,21 @@ saveFlower = (flower) => {
         if(err){ console.error(`Error occurred while saving sunflower \n${err}`); }
         if(doc){ 
             console.info(`Updated document \n${doc}`); 
-            doc.measurement.push.apply(doc.measurement, flower['measurement']);
-            doc.save();
+            // doc.measurement.push.apply(doc.measurement, flower['measurement']);
+            // doc.save();
         }
         if(res){ console.info(`Result: ${res}`) };
     }).exec()
 };
 
-Port.on("data", (data) => dataHandler(data));
-Port.on("readable", () => dataHandler(Port.read()))
 
-console.info("Testing data handler");
-packet_string = "1122334455667788010E015AE32B470A03015AE32B5009ED";
-dataHandler(packet_string); 
+
+// console.info("Testing data handler");
+packet_string = "0004A30B0020F3B90115015FCC7438600A0163CC7438660A0167CC74385A0A"; //"1122334455667788010E015AE32B470A03015AE32B5009ED";
+// dataHandler(packet_string); 
+
+
+process.on("exit", (opts, err) => {
+    console.error(err);
+    Port.close();
+});
