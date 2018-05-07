@@ -103,8 +103,12 @@ App.get('/flower/:id?', (req,res) => {
     })
 })
 App.get('/overview', (req,res) => {
+    console.info("Overview request ...");
     FlowerHandler.overview()
-                .then((results) => res.send(results), (err) => res.status(300).send(err))
+                .then((results) => {
+                    console.info(results)
+                    res.send(results)
+                }, (err) => res.status(300).send(err))
 })
 
 
