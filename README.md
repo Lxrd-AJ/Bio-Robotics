@@ -1,4 +1,9 @@
 # Bio-Robotics
+
+# TODO
+- [ ] Timestamp not working on client side
+- [ ] Use a Try/Catch block for the data-handler
+
 ## Setup
 * Install MongoDB according to the instructions on https://docs.mongodb.com/manual/administration/install-on-linux/ 
 * How to communicate with Server
