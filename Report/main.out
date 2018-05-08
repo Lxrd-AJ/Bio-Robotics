@@ -1,0 +1,12 @@
+\BOOKMARK [1][-]{section.1}{Introduction}{}% 1
+\BOOKMARK [2][-]{subsection.1.1}{Definitions}{section.1}% 2
+\BOOKMARK [1][-]{section.2}{Motivation}{}% 3
+\BOOKMARK [1][-]{section.3}{Architecture}{}% 4
+\BOOKMARK [1][-]{section.4}{Communication}{}% 5
+\BOOKMARK [1][-]{section.5}{Energy Harvesting}{}% 6
+\BOOKMARK [1][-]{section.6}{Data Handling}{}% 7
+\BOOKMARK [2][-]{subsection.6.1}{MongoDB Data store}{section.6}% 8
+\BOOKMARK [2][-]{subsection.6.2}{Dashboard}{section.6}% 9
+\BOOKMARK [2][-]{subsection.6.3}{Central Server}{section.6}% 10
+\BOOKMARK [1][-]{section.7}{Mechanical Design}{}% 11
+\BOOKMARK [1][-]{section.8}{Conclusion and Future Work}{}% 12
