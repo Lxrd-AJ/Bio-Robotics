@@ -146,15 +146,6 @@ function generateFakeData(){
 App.listen(port, () => console.log(`SunFlower Server listening on ${port}`));
 
 
-/**
- * Poll the Lora Module for new data occassionally and utilise `dataHandler` function for parsing
- * the data and storing it into the database
- */
-// const pollObject = setInterval(() => {
-    
-// }, 60000); //Every 60s (minute)
-
-
 dataHandler = (data) => {
     console.info(data);    
     data = data.replace("radio_rx  ","");
@@ -234,15 +225,27 @@ dataHandler = (data) => {
 }
 
 saveFlower = (flower) => {
-    return Flower.findOneAndUpdate({ name: flower['name'] }, flower, {upsert:true}, (err,doc,res) => {
-        if(err){ console.error(`Error occurred while saving sunflower \n${err}`); }
-        if(doc){ 
-            console.info(`Updated document \n${doc}`); 
-            // doc.measurement.push.apply(doc.measurement, flower['measurement']);
-            // doc.save();
+
+    return Flower.findOne({ name: flower["name"]}, (err,res) => {
+        if(err){ flower.save(); }
+        else{
+            console.info("Updating the flower");
+            console.log(res);
+            res.measurement = res.measurement.concat( flower["measurement"] );
+            res.save()
+            console.log(res);
         }
-        if(res){ console.info(`Result: ${res}`) };
-    }).exec()
+    }).exec();
+
+    // return Flower.findOneAndUpdate({ name: flower['name'] }, flower, {upsert:true}, (err,doc,res) => {
+    //     if(err){ console.error(`Error occurred while saving sunflower \n${err}`); }
+    //     if(doc){ 
+    //         console.info(`Updated document \n${doc}`); 
+    //         // doc.measurement.push.apply(doc.measurement, flower['measurement']);
+    //         // doc.save();
+    //     }
+    //     if(res){ console.info(`Result: ${res}`) };
+    // }).exec()
 };
 
 
@@ -250,6 +253,11 @@ saveFlower = (flower) => {
 // console.info("Testing data handler");
 packet_string = "0004A30B0020F3B90115015FCC7438600A0163CC7438660A0167CC74385A0A"; //"1122334455667788010E015AE32B470A03015AE32B5009ED";
 // dataHandler(packet_string); 
+//Testing the class
+const pollObject = setInterval(() => {
+    _CONN_STATE_ = RadioState.RECIEVING;
+    dataHandler( packet_string );
+}, 60000); //Every 60s (minute)
 
 
 process.on("exit", (opts, err) => {
