@@ -29,16 +29,8 @@ const Parser = Port.pipe(new Readline({ delimiter: '\r\n' }))
 Port.on('error', function(err) {
     console.log('Error: ', err.message);
 })
-// Port.on('open', function() {
-//     console.info("Port open ...");
-//     // initialPortTasks();
-// });
 Parser.on("data", (data) => dataHandler(data));
-// Port.on("readable", () => {
-//     const data = Port.read()
-    
-//     dataHandler(data)
-// })
+
 
 const macPause = Buffer.from("mac pause\r\n");
 const radioRX = Buffer.from("radio rx 0\r\n");
@@ -162,54 +154,60 @@ dataHandler = (data) => {
         console.info("Recieving state ....")
         const id_buf = packet.slice(0,8);
         const type_buff = packet.slice(8,9);
-        if( type_buff.readUInt8(0) == 1 ){ // 1 indicates measurement data being sent
-            console.info("Measurement data recieved")
-            const flower = {};
-            flower['name'] = id_buf.toString("hex");
-            flower['measurement'] = [];
-            const length_buffer = packet.slice(9,10);
-            var num_bytes_read = 0; //length_buffer.readUInt8(0);
-            
-            var offset = 10;
-            while(num_bytes_read < length_buffer.readUInt8(0)){ //start reading measurement values
-                const datatype_buffer = packet.readUInt8(offset); //read the unit type
-                num_bytes_read += 1; offset += 1;
-                measurement = {}
-
-                if( datatype_buffer == 1 ){ //Relative temperature DegC / 100
-                    measurement['type'] = 'TEMP'
-                    //read in timestamp value which is 4 bytes
-                    const timestamp_buffer = packet.slice(offset, offset + 4);
-                    num_bytes_read += 4; offset += 4;
-                    measurement['timestamp'] = new Date(timestamp_buffer.readInt32LE(0) * 1000);
-                    // Temperature data is 2 bytes and is read as int16 (signed int)
-                    const value_buffer = packet.slice(offset, offset + 2);                
-                    measurement['value'] = value_buffer.readInt16LE(0) / 100;
-                    num_bytes_read += 2; offset += 2;
-                }else if( datatype_buffer == 2 ){ // Relative humidity - data / 100
-                    measurement['type'] = 'HUMIDITY';
-                    //read in timestamp value which is 4 bytes
-                    const timestamp_buffer = packet.slice(offset, offset + 4);
-                    num_bytes_read += 4; offset += 4;
-                    measurement['timestamp'] = new Date(timestamp_buffer.readInt32LE(0) * 1000);
-                    // Humidity data is 2 bytes and is read as UInt16
-                    const value_buffer = packet.slice(offset, offset + 2);
-                    measurement['value'] = value_buffer.readUInt16LE(0) / 100;
-                }else if( datatype_buffer == 3 ){ // Abs light - no units 
-                    measurement['type'] = 'LIGHT'
-                    //read in timestamp value which is 4 bytes
-                    const timestamp_buffer = packet.slice(offset, offset + 4);
-                    num_bytes_read += 4; offset += 4;
-                    measurement['timestamp'] = new Date(timestamp_buffer.readInt32LE(0) * 1000);
-                    //Light data is 1 byte and is read as UInt8
-                    const value_buffer = packet.slice(offset, offset + 1)
-                    measurement['value'] = value_buffer.readUInt8(0);
+        
+        try {
+            if( type_buff.readUInt8(0) == 1 ){ // 1 indicates measurement data being sent
+                console.info("Measurement data recieved")
+                const flower = {};
+                flower['name'] = id_buf.toString("hex");
+                flower['measurement'] = [];
+                const length_buffer = packet.slice(9,10);
+                var num_bytes_read = 0; //length_buffer.readUInt8(0);
+                
+                var offset = 10;
+                while(num_bytes_read < length_buffer.readUInt8(0)){ //start reading measurement values
+                    const datatype_buffer = packet.readUInt8(offset); //read the unit type
+                    num_bytes_read += 1; offset += 1;
+                    measurement = {}
+    
+                    if( datatype_buffer == 1 ){ //Relative temperature DegC / 100
+                        measurement['type'] = 'TEMP'
+                        //read in timestamp value which is 4 bytes
+                        const timestamp_buffer = packet.slice(offset, offset + 4);
+                        num_bytes_read += 4; offset += 4;
+                        measurement['timestamp'] = new Date(timestamp_buffer.readInt32LE(0) * 1000);
+                        // Temperature data is 2 bytes and is read as int16 (signed int)
+                        const value_buffer = packet.slice(offset, offset + 2);                
+                        measurement['value'] = value_buffer.readInt16LE(0) / 100;
+                        num_bytes_read += 2; offset += 2;
+                    }else if( datatype_buffer == 2 ){ // Relative humidity - data / 100
+                        measurement['type'] = 'HUMIDITY';
+                        //read in timestamp value which is 4 bytes
+                        const timestamp_buffer = packet.slice(offset, offset + 4);
+                        num_bytes_read += 4; offset += 4;
+                        measurement['timestamp'] = new Date(timestamp_buffer.readInt32LE(0) * 1000);
+                        // Humidity data is 2 bytes and is read as UInt16
+                        const value_buffer = packet.slice(offset, offset + 2);
+                        measurement['value'] = value_buffer.readUInt16LE(0) / 100;
+                    }else if( datatype_buffer == 3 ){ // Abs light - no units 
+                        measurement['type'] = 'LIGHT'
+                        //read in timestamp value which is 4 bytes
+                        const timestamp_buffer = packet.slice(offset, offset + 4);
+                        num_bytes_read += 4; offset += 4;
+                        measurement['timestamp'] = new Date(timestamp_buffer.readInt32LE(0) * 1000);
+                        //Light data is 1 byte and is read as UInt8
+                        const value_buffer = packet.slice(offset, offset + 1)
+                        measurement['value'] = value_buffer.readUInt8(0);
+                    }
+    
+                    flower['measurement'].push( measurement )
                 }
-
-                flower['measurement'].push( measurement )
+                console.log(flower);
+                saveFlower(flower);
             }
-            console.log(flower);
-            saveFlower(flower);
+        } catch (error) {
+            console.error("A Recoverable error occurred .... ")
+            console.error(error);
         }
     }
 
