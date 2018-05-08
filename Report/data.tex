@@ -34,7 +34,25 @@ Currently the dashboard only receives data from the central server as data curre
 
 
 \subsection{Central Server}
-%TODO - Quick intro in the tech behind the server (highly scalable and asynchronous in nature)
-%TODO - Functionality of the server: Node serial port communication and parsing, saving to disk, processing the data for analytics
-%TODO - REST API exposed which can be used by mobile apps, web-apps etc
+% Quick intro in the tech behind the server (highly scalable and asynchronous in nature)
+The central server is the main entry point for the data processing end. It is built using NodeJS, a highly scalable technology with first class asynchronous support; This is useful for our application where the packets are streamed as they arrive into the central server.
+
+% Functionality of the server: Node serial port communication and parsing, saving to disk, processing the data for analytics
+The pipeline of the central server from parsing the data to sending it to clients is described below and figure \ref{figure:arch} shows the flow of data across the entire application from the lora modem to the dashboard client.
+\begin{itemize}
+	\item The first thing the server does is to connect to the lora-modem via serial port and instructs it to listen for data packets from the flowers. It should be noted that the entire setup is asynchronous and data is just streamed into the server once it arrives.
+	\item the central server receives it from the modem and parses it. The parsing is done with the assumption that the bits are stored in big endian format; Once this is completed, they are automatically saved into the MongoDB database where they update the data for an existing flower or create a store if the data is from a new flower.
+\end{itemize} 
+
+% REST API exposed which can be used by mobile apps, web-apps etc
+The server exposes a REST(Representational State Transfer) API that enables it to communicate with any client that supports this protocol. For this project, we have built a dashboard app for the web that uses REST to communicate with the server but this could easily be adapted for another client such as an iOS mobile app. 
+As the central server has a medium for communicating with the sun-flowers via the attached lora model, it is technically possible to enable the server pass commands on the flowers as mentioned earlier.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=\linewidth]{arch}
+	\caption{Pipeline flow of data across the application}
+	\label{figure:arch}
+\end{figure}
+
 %TODO: Include an image of the entire pipeline
