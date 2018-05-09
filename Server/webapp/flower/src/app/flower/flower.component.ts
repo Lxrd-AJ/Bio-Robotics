@@ -13,7 +13,7 @@ export class FlowerComponent implements OnInit {
 
   flower:Object;
   plot_data: any [];
-  view: any[] = [800, 400];
+  view: any[] = [1000, 600];
   showXAxis = true;
   showYAxis = true;
   gradient = false;
@@ -45,7 +45,7 @@ export class FlowerComponent implements OnInit {
 
     var temp = flower["measurement"].filter((measurement) => measurement["type"] == "TEMP")
     var series_temp = temp.map((measurement) => {
-      return {"name":measurement["timestamp"],"value":measurement["value"]}
+      return {"name": measurement["timestamp"],"value":measurement["value"]}
     })
     console.info(series_temp)
     this.plot_data = [{
@@ -56,6 +56,10 @@ export class FlowerComponent implements OnInit {
         "series": series_humidity
       }
     ]
+  }
+
+  xAxisFormatter(x){
+    return new Date(x).toString();
   }
 
 }
